@@ -1,0 +1,43 @@
+body {
+  cursor: default;
+  -webkit-user-select: none; }
+
+a, a:hover, a:visited, a:active, a:focus {
+  text-decoration: none; }
+
+.shuffles {
+  background: #ffffff;
+  flex-grow: 2;
+  display: flex;
+  display: -webkit-flex;
+  justify-content: center;
+  flex-direction: column; }
+  .shuffles > .add-button {
+    display: flex;
+    margin-left: 20px; }
+  .shuffles > .remove-button {
+    align-self: flex-end; }
+
+.side-menu > div {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  z-index: 2;
+  top: 0;
+  height: 100%;
+  flex-direction: column;
+  align-content: flex-start;
+  flex-grow: 1; }
+  .side-menu > div.left {
+    background: #273D7A; }
+  .side-menu > div > .side-menu-item {
+    float: left;
+    width: 100%;
+    margin: 0;
+    padding: 10px 15px;
+    border-bottom: solid 1px #555;
+    cursor: pointer;
+    color: #B0B0B0; }
+    .side-menu > div > .side-menu-item:hover {
+      color: #F0F0F0; }
+
+/*# sourceMappingURL=main.css.map */

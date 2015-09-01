@@ -1,0 +1,64 @@
+
+body {
+  cursor: default;
+  -webkit-user-select: none;
+}
+
+a, a:hover, a:visited, a:active, a:focus {
+  text-decoration: none;
+}
+
+@mixin border-box {
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+}
+
+.shuffles {
+  background: #ffffff;
+  flex-grow: 2;
+  display: flex;
+  display: -webkit-flex;
+  justify-content: center;
+  flex-direction: column;
+
+  >.add-button {
+    display: flex;
+    margin-left: 20px;
+  }
+
+  >.remove-button {
+    align-self: flex-end;
+  }
+}
+
+.side-menu {
+  $side-menu-width: 250px;
+
+  >div {
+    @include border-box;
+    z-index: 2;
+    top: 0;
+    height: 100%;
+    flex-direction: column;
+    align-content: flex-start;
+    flex-grow: 1;
+
+    &.left {
+      background: #273D7A;
+    }
+
+    >.side-menu-item {
+      float: left;
+      width: 100%;
+      margin: 0;
+      padding: 10px 15px;
+      border-bottom: solid 1px #555;
+      cursor: pointer;
+      color: #B0B0B0;
+
+      &:hover {
+        color: #F0F0F0;
+      }
+    }
+  }
+}
