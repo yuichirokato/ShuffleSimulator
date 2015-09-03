@@ -15,6 +15,7 @@ class FileWriter {
   }
 
   writeProcess(array, condition, suffix) {
+    console.log("writeProcess!");
     let csv = this.arrayToCsvString(array);
     let template = this.createSettingsTemplate(condition);
     let output = csv + template;
@@ -27,6 +28,8 @@ class FileWriter {
   }
 
   arrayToCsvString(array) {
+    console.log("arrayToCsvString!");
+    console.log("array: " + JSON.stringify(array));
     return array.map(card => this._cardToString(card)).join(",") + '\r\n\n';
   }
 

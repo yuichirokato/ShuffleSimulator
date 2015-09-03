@@ -21,6 +21,11 @@ class Shuffle {
   shuffleStart(conditions, times, deck) {
     let _deck = deck;
 
+    if (times <= 0) {
+      let string = results.reduce((a, b) => a + b, '');
+      return { deck: result, string: string };
+    }
+
     if (deck.length === 0) {
       _deck = this._createDeck();
       maxTimes = times;
@@ -28,11 +33,6 @@ class Shuffle {
 
     gloabalIndex = maxTimes - times;
     let result = this._localShuffle(conditions, _deck);
-
-    if (times - 1 < 0) {
-      let string = results.reduce((a, b) => a + b, '');
-      return { deck: result, string: string };
-    }
 
     results[results.length] = localResults.join(',');
     localResults = [];
@@ -48,6 +48,7 @@ class Shuffle {
       console.log("type: " + JSON.stringify(condition));
       middleIndex = index;
       _deck = this._shuffleRouter(condition, _deck);
+      // console.log("_deck: " + JSON.stringify(_deck));
       let csv = FileWriter.arrayToCsvString(_deck);
       let template = FileWriter.createSettingsTemplate(condition);
 
@@ -63,7 +64,7 @@ class Shuffle {
 
     let type = condition.shuffleType;
 
-    if (type === 'cut' || type === 'deal') {
+    if (type === 'cut') {
       let fromRange = condition.fromRange;
       let toRange = condition.toRange;
       let isRandom = condition.startIsRandom;
@@ -86,9 +87,22 @@ class Shuffle {
       let times = condition.shuffleTimes;
       return this._faroShuffle(times, deck);
     }
+
+    if (type === 'deal') {
+      let fromRange = condition.fromRange;
+      let toRange = condition.toRange;
+      let isRandom = condition.startIsRandom;
+      let times = condition.shuffleTimes;
+      return this._dealShuffle(fromRange, toRange, isRandom, times, deck);
+    }
   }
 
   _cutShuffle(fromNum, toNum, isRandom, times, deck) {
+    if (times <= 0) {
+      itemResults = [];
+      return result;
+    }
+
     let endPoint = isRandom ? this._createRandom() : this._createRandom(fromNum, toNum);
     let newDeck = deck.slice(0, endPoint);
     let result = deck.slice(endPoint).concat(newDeck);
@@ -98,12 +112,9 @@ class Shuffle {
     }
 
     let index = localMaxTimes - times;
-    if (times - 1 < 0) {
-      itemResults = [];
-      return result;
-    }
 
     if (isDisplayProcess) {
+      console.log("cut isDisplay True!");
       let suffix = "cut-" + gloabalIndex + "-" + middleIndex + "-" + index;
       let condition = { shuffleType: "cut", fromRange: fromNum, toRange: toNum, shuffleTimes: localMaxTimes };
       FileWriter.writeProcess(result, condition, suffix);
@@ -115,10 +126,22 @@ class Shuffle {
   }
 
   _hinduShuffle(startFrom, startTo, endFrom, endTo, isRandom, endIsRandom, times, deck) {
+    if (times <= 0) {
+      itemResults = [];
+		  return deck;
+	  }
+
     let start = isRandom ? this._createRandom() : this._createRandom(startFrom, startTo);
 	  let end = endIsRandom ? this._createRandom() : this._createRandom(endFrom, endTo);
+    let isError = start > end ? 'error!' : 'no error!';
+    // console.log("endTo: " + endTo);
+    // console.log("start: " + start);
+    // console.log("end: " + end);
+    // console.log("times: " + times);
+    // console.log("start > end: " + isError);
 
-	  if (start >= end) {
+	  if (start > end || start < startFrom || start > startTo || end < endFrom || end > endTo) {
+      console.log("やり直し！");
 		  return this._hinduShuffle(startFrom, startTo, endFrom, endTo, isRandom, endIsRandom, times, deck);
 	  }
 
@@ -126,16 +149,18 @@ class Shuffle {
       localMaxTimes = times;
     }
 
-	  let middleDeck = deck.slice(start, end);
+    let index = localMaxTimes - times;
+	  let middleDeck = deck.slice(start - 1, end);
 	  let bottomDeck = deck.slice(end);
 	  let topDeck = deck.slice(0, start - 1);
-	  let result = [middleDeck, topDeck, bottomDeck].flatten();
 
-    let index = localMaxTimes - times;
-	  if (times - 1 < 0) {
-      itemResults = [];
-		  return result;
-	  }
+    // console.log("middle: " + JSON.stringify(middleDeck));
+    // console.log("top: " + JSON.stringify(topDeck));
+    // console.log("bottom: " + JSON.stringify(bottomDeck));
+
+	  let result = flatten([middleDeck, topDeck, bottomDeck]);
+
+    // console.log("hindu result: " + JSON.stringify(result));
 
     if (isDisplayProcess) {
       let suffix = "hindu-" + gloabalIndex + "-" + middleIndex + "-" + index;
@@ -149,6 +174,11 @@ class Shuffle {
   }
 
   _faroShuffle(times, deck) {
+    if (times <= 0) {
+      itemResults = [];
+      return result;
+    }
+
     let endPoint = deck.length / 2;
 	  let arrayRight = deck.slice(0, endPoint);
 	  let arrayLeft = deck.slice(endPoint);
@@ -170,13 +200,9 @@ class Shuffle {
 		  }
 	  }
 
-	  if (times - 1 < 0) {
-      itemResults = [];
-		  return result;
-	  }
-
     let index = localMaxTimes - times;
     if (isDisplayProcess) {
+      console.log("faro isDisplay True!");
       let suffix = "faro-" + gloabalIndex + "-" + middleIndex + "-" + index;
       let condition = { shuffleType: "faro", shuffleTimes: localMaxTimes };
       FileWriter.writeProcess(result, condition, suffix);
@@ -188,6 +214,11 @@ class Shuffle {
   }
 
   _dealShuffle(fromNum, toNum, times, deck) {
+    if (times <= 0) {
+      itemResults = [];
+      return flatten(result);
+    }
+
     let num = _createSubDeckNumber(fromNum, toNum);
 	  let decks = _createEmptyDecks(num);
 	  let result = [];
@@ -199,10 +230,6 @@ class Shuffle {
 
 	  if (num === 1) {
 		  deck.reverse();
-		  if (times - 1 < 0) {
-        itemResults = [];
-			  return deck;
-		  }
 
       if (isDisplayProcess) {
         let suffix = "deal-" + gloabalIndex + "-" + middleIndex + "-" + index;
@@ -228,11 +255,6 @@ class Shuffle {
       });
 	  }
 
-	  if (times - 1 < 0) {
-      itemResults = [];
-		  return flatten(result);
-	  }
-
     if (isDisplayProcess) {
       let suffix = "deal-" + gloabalIndex + "-" + middleIndex + "-" + index;
       let condition = { shuffleType: "deal", fromRange: fromNum, toRange: toNum, shuffleTimes: localMaxTimes };
@@ -249,7 +271,7 @@ class Shuffle {
     let result = flatten(
       sutes.map(sute => {
         return Array.from(Array(13).keys()).map(index => {
-          return { sute: sute, number: index }
+          return { sute: sute, number: index + 1 }
         });
       })
     );
@@ -258,11 +280,17 @@ class Shuffle {
   }
 
   _createRandom(fromNum, toNum) {
-    if (fromNum === 'undefined' || toNum === 'undefined' || fromNum === toNum) {
-      return Math.random() * (52 - 1) + 1;
+    console.log("fromNum: " + fromNum);
+    console.log("toNum: " + toNum);
+    if (fromNum === undefined || toNum === undefined) {
+      let result = Math.floor(Math.random() * (52 - 1) + 1);
+      console.log("result: " + result);
+      return result;
     }
 
-    return Math.random() * (toNum - fromNum) + fromNum;
+    let result = Math.floor(Math.random() * (toNum - fromNum) + fromNum);
+
+    return result;
   }
 
   _createEmptyDecks(num) {
@@ -275,7 +303,7 @@ class Shuffle {
   }
 
   _createSubDeckNumber(fromNum, toNum) {
-    if (from === 'undefined' || to === 'undefined' || fromNum === toNum) {
+    if (from === 'undefined' || to === 'undefined') {
 		  return Math.random() * (8 - 1) + 1;
 	  }
 

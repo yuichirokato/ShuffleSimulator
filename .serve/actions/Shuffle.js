@@ -45,6 +45,13 @@ var Shuffle = (function () {
     value: function shuffleStart(conditions, times, deck) {
       var _deck = deck;
 
+      if (times <= 0) {
+        var string = results.reduce(function (a, b) {
+          return a + b;
+        }, '');
+        return { deck: result, string: string };
+      }
+
       if (deck.length === 0) {
         _deck = this._createDeck();
         maxTimes = times;
@@ -52,13 +59,6 @@ var Shuffle = (function () {
 
       gloabalIndex = maxTimes - times;
       var result = this._localShuffle(conditions, _deck);
-
-      if (times - 1 < 0) {
-        var string = results.reduce(function (a, b) {
-          return a + b;
-        }, '');
-        return { deck: result, string: string };
-      }
 
       results[results.length] = localResults.join(',');
       localResults = [];
@@ -77,6 +77,7 @@ var Shuffle = (function () {
         console.log("type: " + JSON.stringify(condition));
         middleIndex = index;
         _deck = _this._shuffleRouter(condition, _deck);
+        // console.log("_deck: " + JSON.stringify(_deck));
         var csv = _utilsFileWriter2['default'].arrayToCsvString(_deck);
         var template = _utilsFileWriter2['default'].createSettingsTemplate(condition);
 
@@ -93,7 +94,7 @@ var Shuffle = (function () {
 
       var type = condition.shuffleType;
 
-      if (type === 'cut' || type === 'deal') {
+      if (type === 'cut') {
         var fromRange = condition.fromRange;
         var toRange = condition.toRange;
         var isRandom = condition.startIsRandom;
@@ -116,10 +117,23 @@ var Shuffle = (function () {
         var times = condition.shuffleTimes;
         return this._faroShuffle(times, deck);
       }
+
+      if (type === 'deal') {
+        var fromRange = condition.fromRange;
+        var toRange = condition.toRange;
+        var isRandom = condition.startIsRandom;
+        var times = condition.shuffleTimes;
+        return this._dealShuffle(fromRange, toRange, isRandom, times, deck);
+      }
     }
   }, {
     key: '_cutShuffle',
     value: function _cutShuffle(fromNum, toNum, isRandom, times, deck) {
+      if (times <= 0) {
+        itemResults = [];
+        return result;
+      }
+
       var endPoint = isRandom ? this._createRandom() : this._createRandom(fromNum, toNum);
       var newDeck = deck.slice(0, endPoint);
       var result = deck.slice(endPoint).concat(newDeck);
@@ -129,12 +143,9 @@ var Shuffle = (function () {
       }
 
       var index = localMaxTimes - times;
-      if (times - 1 < 0) {
-        itemResults = [];
-        return result;
-      }
 
       if (isDisplayProcess) {
+        console.log("cut isDisplay True!");
         var suffix = "cut-" + gloabalIndex + "-" + middleIndex + "-" + index;
         var condition = { shuffleType: "cut", fromRange: fromNum, toRange: toNum, shuffleTimes: localMaxTimes };
         _utilsFileWriter2['default'].writeProcess(result, condition, suffix);
@@ -147,10 +158,22 @@ var Shuffle = (function () {
   }, {
     key: '_hinduShuffle',
     value: function _hinduShuffle(startFrom, startTo, endFrom, endTo, isRandom, endIsRandom, times, deck) {
+      if (times <= 0) {
+        itemResults = [];
+        return deck;
+      }
+
       var start = isRandom ? this._createRandom() : this._createRandom(startFrom, startTo);
       var end = endIsRandom ? this._createRandom() : this._createRandom(endFrom, endTo);
+      var isError = start > end ? 'error!' : 'no error!';
+      // console.log("endTo: " + endTo);
+      // console.log("start: " + start);
+      // console.log("end: " + end);
+      // console.log("times: " + times);
+      // console.log("start > end: " + isError);
 
-      if (start >= end) {
+      if (start > end || start < startFrom || start > startTo || end < endFrom || end > endTo) {
+        console.log("やり直し！");
         return this._hinduShuffle(startFrom, startTo, endFrom, endTo, isRandom, endIsRandom, times, deck);
       }
 
@@ -158,16 +181,18 @@ var Shuffle = (function () {
         localMaxTimes = times;
       }
 
-      var middleDeck = deck.slice(start, end);
+      var index = localMaxTimes - times;
+      var middleDeck = deck.slice(start - 1, end);
       var bottomDeck = deck.slice(end);
       var topDeck = deck.slice(0, start - 1);
-      var result = [middleDeck, topDeck, bottomDeck].flatten();
 
-      var index = localMaxTimes - times;
-      if (times - 1 < 0) {
-        itemResults = [];
-        return result;
-      }
+      // console.log("middle: " + JSON.stringify(middleDeck));
+      // console.log("top: " + JSON.stringify(topDeck));
+      // console.log("bottom: " + JSON.stringify(bottomDeck));
+
+      var result = flatten([middleDeck, topDeck, bottomDeck]);
+
+      // console.log("hindu result: " + JSON.stringify(result));
 
       if (isDisplayProcess) {
         var suffix = "hindu-" + gloabalIndex + "-" + middleIndex + "-" + index;
@@ -182,6 +207,11 @@ var Shuffle = (function () {
   }, {
     key: '_faroShuffle',
     value: function _faroShuffle(times, deck) {
+      if (times <= 0) {
+        itemResults = [];
+        return result;
+      }
+
       var endPoint = deck.length / 2;
       var arrayRight = deck.slice(0, endPoint);
       var arrayLeft = deck.slice(endPoint);
@@ -203,13 +233,9 @@ var Shuffle = (function () {
         }
       }
 
-      if (times - 1 < 0) {
-        itemResults = [];
-        return result;
-      }
-
       var index = localMaxTimes - times;
       if (isDisplayProcess) {
+        console.log("faro isDisplay True!");
         var suffix = "faro-" + gloabalIndex + "-" + middleIndex + "-" + index;
         var condition = { shuffleType: "faro", shuffleTimes: localMaxTimes };
         _utilsFileWriter2['default'].writeProcess(result, condition, suffix);
@@ -224,6 +250,11 @@ var Shuffle = (function () {
     value: function _dealShuffle(fromNum, toNum, times, deck) {
       var _this2 = this;
 
+      if (times <= 0) {
+        itemResults = [];
+        return flatten(result);
+      }
+
       var num = _createSubDeckNumber(fromNum, toNum);
       var decks = _createEmptyDecks(num);
       var result = [];
@@ -235,10 +266,6 @@ var Shuffle = (function () {
 
       if (num === 1) {
         deck.reverse();
-        if (times - 1 < 0) {
-          itemResults = [];
-          return deck;
-        }
 
         if (isDisplayProcess) {
           var suffix = "deal-" + gloabalIndex + "-" + middleIndex + "-" + index;
@@ -268,11 +295,6 @@ var Shuffle = (function () {
         })();
       }
 
-      if (times - 1 < 0) {
-        itemResults = [];
-        return flatten(result);
-      }
-
       if (isDisplayProcess) {
         var suffix = "deal-" + gloabalIndex + "-" + middleIndex + "-" + index;
         var condition = { shuffleType: "deal", fromRange: fromNum, toRange: toNum, shuffleTimes: localMaxTimes };
@@ -289,7 +311,7 @@ var Shuffle = (function () {
       var sutes = ['spade', 'club', 'heart', 'dia'];
       var result = flatten(sutes.map(function (sute) {
         return Array.from(Array(13).keys()).map(function (index) {
-          return { sute: sute, number: index };
+          return { sute: sute, number: index + 1 };
         });
       }));
 
@@ -298,11 +320,17 @@ var Shuffle = (function () {
   }, {
     key: '_createRandom',
     value: function _createRandom(fromNum, toNum) {
-      if (fromNum === 'undefined' || toNum === 'undefined' || fromNum === toNum) {
-        return Math.random() * (52 - 1) + 1;
+      console.log("fromNum: " + fromNum);
+      console.log("toNum: " + toNum);
+      if (fromNum === undefined || toNum === undefined) {
+        var _result = Math.floor(Math.random() * (52 - 1) + 1);
+        console.log("result: " + _result);
+        return _result;
       }
 
-      return Math.random() * (toNum - fromNum) + fromNum;
+      var result = Math.floor(Math.random() * (toNum - fromNum) + fromNum);
+
+      return result;
     }
   }, {
     key: '_createEmptyDecks',
@@ -322,7 +350,7 @@ var Shuffle = (function () {
   }, {
     key: '_createSubDeckNumber',
     value: function _createSubDeckNumber(fromNum, toNum) {
-      if (from === 'undefined' || to === 'undefined' || fromNum === toNum) {
+      if (from === 'undefined' || to === 'undefined') {
         return Math.random() * (8 - 1) + 1;
       }
 

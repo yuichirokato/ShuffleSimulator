@@ -38,6 +38,7 @@ var FileWriter = (function () {
   }, {
     key: 'writeProcess',
     value: function writeProcess(array, condition, suffix) {
+      console.log("writeProcess!");
       var csv = this.arrayToCsvString(array);
       var template = this.createSettingsTemplate(condition);
       var output = csv + template;
@@ -54,6 +55,8 @@ var FileWriter = (function () {
     value: function arrayToCsvString(array) {
       var _this = this;
 
+      console.log("arrayToCsvString!");
+      console.log("array: " + JSON.stringify(array));
       return array.map(function (card) {
         return _this._cardToString(card);
       }).join(",") + '\r\n\n';
