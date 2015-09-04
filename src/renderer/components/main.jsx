@@ -3,6 +3,7 @@ import shell from 'shell';
 import SideMenu from './SideMenu';
 import ShuffleMenu from './ShuffleMenu';
 import mui from 'material-ui';
+import { AppCanvas } from 'material-ui';
 
 let ThemeManager = new mui.Styles.ThemeManager();
 

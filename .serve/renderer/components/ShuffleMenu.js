@@ -48,6 +48,9 @@ var _utilsFileWriter2 = _interopRequireDefault(_utilsFileWriter);
 
 (0, _reactTapEventPlugin2['default'])();
 var ThemeManager = new _materialUi2['default'].Styles.ThemeManager();
+
+ThemeManager.setTheme(ThemeManager.types.LIGHT);
+
 var dirHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 var defaultPath = _path2['default'].join(dirHome, "Desktop");
 var shufflePoints = [{ payload: 1, text: 'Continuity' }, { payload: 2, text: 'Fix' }];

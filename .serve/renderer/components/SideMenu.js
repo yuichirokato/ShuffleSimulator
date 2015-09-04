@@ -24,6 +24,8 @@ var _actionsShuffleActionCreators2 = _interopRequireDefault(_actionsShuffleActio
 
 var ThemeManager = new _materialUi2['default'].Styles.ThemeManager();
 
+ThemeManager.setTheme(ThemeManager.types.LIGHT);
+
 var modeItems = [{ payload: "tramp", text: "Tramp" }, { payload: "custom", text: "Custom" }];
 
 var holdemItems = [{ payload: '2', text: "2" }, { payload: '3', text: "3" }, { payload: '4', text: "4" }, { payload: '5', text: "5" }, { payload: '6', text: "6" }, { payload: '7', text: "7" }, { payload: '8', text: "8" }];

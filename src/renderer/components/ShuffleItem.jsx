@@ -11,6 +11,9 @@ import ContentClear from 'material-ui/lib/svg-icons/content/clear';
 import ShuffleActionCreators from '../../actions/ShuffleActionCreators';
 
 let ThemeManager = new mui.Styles.ThemeManager();
+
+ThemeManager.setTheme(ThemeManager.types.LIGHT);
+
 let shuffleTypes = [
   { payload: 'cut', text: 'Cut' },
   { payload: 'hindu', text: 'Hindu' },

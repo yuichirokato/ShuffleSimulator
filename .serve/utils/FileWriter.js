@@ -72,19 +72,19 @@ var FileWriter = (function () {
     value: function _cardToString(card) {
       switch (card.sute) {
         case 'heart':
-          return "1-" + (card.number + 1);
+          return "1-" + card.number;
 
         case 'spade':
-          return "2-" + (card.number + 1);
+          return "2-" + card.number;
 
         case 'dia':
-          return "3-" + (card.number + 1);
+          return "3-" + card.number;
 
         case 'club':
-          return "4-" + (card.number + 1);
+          return "4-" + card.number;
 
         default:
-          return "1-" + (card.number + 1);
+          return "1-" + card.number;
       }
     }
   }]);

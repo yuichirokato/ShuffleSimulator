@@ -15,6 +15,9 @@ import FileWriter from '../../utils/FileWriter';
 
 InjectTapEventPlugin();
 let ThemeManager = new mui.Styles.ThemeManager();
+
+ThemeManager.setTheme(ThemeManager.types.LIGHT);
+
 let dirHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 let defaultPath = path.join(dirHome, "Desktop");
 let shufflePoints = [

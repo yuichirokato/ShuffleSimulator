@@ -27,6 +27,9 @@ var _actionsShuffleActionCreators = require('../../actions/ShuffleActionCreators
 var _actionsShuffleActionCreators2 = _interopRequireDefault(_actionsShuffleActionCreators);
 
 var ThemeManager = new _materialUi2['default'].Styles.ThemeManager();
+
+ThemeManager.setTheme(ThemeManager.types.LIGHT);
+
 var shuffleTypes = [{ payload: 'cut', text: 'Cut' }, { payload: 'hindu', text: 'Hindu' }, { payload: 'faro', text: 'Faro' }, { payload: 'deal', text: 'Deal' }];
 
 var styles = {

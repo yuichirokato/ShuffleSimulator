@@ -100,7 +100,7 @@ class Shuffle {
   _cutShuffle(fromNum, toNum, isRandom, times, deck) {
     if (times <= 0) {
       itemResults = [];
-      return result;
+      return deck;
     }
 
     let endPoint = isRandom ? this._createRandom() : this._createRandom(fromNum, toNum);
@@ -114,7 +114,7 @@ class Shuffle {
     let index = localMaxTimes - times;
 
     if (isDisplayProcess) {
-      console.log("cut isDisplay True!");
+      // console.log("cut isDisplay True!");
       let suffix = "cut-" + gloabalIndex + "-" + middleIndex + "-" + index;
       let condition = { shuffleType: "cut", fromRange: fromNum, toRange: toNum, shuffleTimes: localMaxTimes };
       FileWriter.writeProcess(result, condition, suffix);
@@ -140,8 +140,8 @@ class Shuffle {
     // console.log("times: " + times);
     // console.log("start > end: " + isError);
 
-	  if (start > end || start < startFrom || start > startTo || end < endFrom || end > endTo) {
-      console.log("やり直し！");
+	  if (start > end) {
+      // console.log("やり直し！");
 		  return this._hinduShuffle(startFrom, startTo, endFrom, endTo, isRandom, endIsRandom, times, deck);
 	  }
 
@@ -176,7 +176,7 @@ class Shuffle {
   _faroShuffle(times, deck) {
     if (times <= 0) {
       itemResults = [];
-      return result;
+      return deck;
     }
 
     let endPoint = deck.length / 2;
@@ -200,9 +200,10 @@ class Shuffle {
 		  }
 	  }
 
+    result.reverse();
+
     let index = localMaxTimes - times;
     if (isDisplayProcess) {
-      console.log("faro isDisplay True!");
       let suffix = "faro-" + gloabalIndex + "-" + middleIndex + "-" + index;
       let condition = { shuffleType: "faro", shuffleTimes: localMaxTimes };
       FileWriter.writeProcess(result, condition, suffix);
@@ -213,16 +214,20 @@ class Shuffle {
 	  return this._faroShuffle(times - 1, result);
   }
 
-  _dealShuffle(fromNum, toNum, times, deck) {
+  _dealShuffle(fromNum, toNum, isRandom, times, deck) {
+    // console.log("times: " + times);
     if (times <= 0) {
       itemResults = [];
-      return flatten(result);
+      // console.log("result: " + JSON.stringify(deck));
+      return flatten(deck);
     }
 
-    let num = _createSubDeckNumber(fromNum, toNum);
-	  let decks = _createEmptyDecks(num);
-	  let result = [];
+    let num = isRandom ? this._createRandom() : this._createRandom(fromNum, toNum);
+	  let decks = this._createEmptyDecks(num);
 	  let surplus = deck.length % num;
+
+    // console.log("num: " + num);
+    // console.log("deck: " + JSON.stringify(deck));
 
     if (itemResults.length <= 0) {
       localMaxTimes = times;
@@ -237,13 +242,14 @@ class Shuffle {
         FileWriter.writeProcess(deck, condition, suffix);
       }
 
+      let index = localMaxTimes - times;
       itemResults[itemResults.length] = index;
 
-		  return this._dealShuffle(fromNum, toNum, times - 1, deck);
+		  return this._dealShuffle(fromNum, toNum, isRandom, times - 1, deck);
 	  }
 
-    result = [...Array(num).keys()].map(index => {
-      return this._getSubDeckIndex(index, num).map(i => deck[i]);
+    let result = [...Array(num).keys()].map(index => {
+      return this._getSubDeckIndex(index, num, deck).map(i => deck[i]);
     });
 
 	  if (surplus) {
@@ -255,15 +261,18 @@ class Shuffle {
       });
 	  }
 
+    result.forEach(deck => deck.reverse());
+
     if (isDisplayProcess) {
       let suffix = "deal-" + gloabalIndex + "-" + middleIndex + "-" + index;
       let condition = { shuffleType: "deal", fromRange: fromNum, toRange: toNum, shuffleTimes: localMaxTimes };
       FileWriter.writeProcess(flatten(result), condition, suffix);
     }
 
+    let index = localMaxTimes - times;
     itemResults[itemResults.length] = index;
 
-	  return this._dealShuffle(fromNum, toNum, times - 1, flatten(result));
+	  return this._dealShuffle(fromNum, toNum, isRandom, times - 1, flatten(result));
   }
 
   _createDeck() {
@@ -280,15 +289,16 @@ class Shuffle {
   }
 
   _createRandom(fromNum, toNum) {
-    console.log("fromNum: " + fromNum);
-    console.log("toNum: " + toNum);
+    let startPoint = parseInt(fromNum, 10);
+    let endPoint = parseInt(toNum, 10);
+
     if (fromNum === undefined || toNum === undefined) {
       let result = Math.floor(Math.random() * (52 - 1) + 1);
-      console.log("result: " + result);
+      // console.log("result: " + result);
       return result;
     }
 
-    let result = Math.floor(Math.random() * (toNum - fromNum) + fromNum);
+    let result = Math.floor(Math.random() * (endPoint - startPoint) + startPoint);
 
     return result;
   }
@@ -297,17 +307,11 @@ class Shuffle {
     return [...Array(num).keys()].map(index => []);
   }
 
-  _getSubDeckIndex(fromNum, byNum) {
-    let maxIteration = deck.length / byNum;
-    return [...Array(maxIteration + 1).keys()].map(i => fromNum + byNum * i);
-  }
-
-  _createSubDeckNumber(fromNum, toNum) {
-    if (from === 'undefined' || to === 'undefined') {
-		  return Math.random() * (8 - 1) + 1;
-	  }
-
-	  return Math.random() * (to - fromNum) + fromNum;
+  _getSubDeckIndex(fromNum, byNum, deck) {
+    let maxIteration = Math.floor(deck.length / byNum);
+    let indexs = [...Array(maxIteration).keys()].map(i => fromNum + byNum * i);
+    // console.log("indexs: " + JSON.stringify(indexs));
+    return indexs
   }
 }
 

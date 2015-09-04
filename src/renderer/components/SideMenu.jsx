@@ -11,6 +11,8 @@ import ShuffleActionCreators from '../../actions/ShuffleActionCreators';
 
 let ThemeManager = new mui.Styles.ThemeManager();
 
+ThemeManager.setTheme(ThemeManager.types.LIGHT);
+
 let modeItems = [
   { payload: "tramp", text: "Tramp" },
   { payload: "custom", text: "Custom" }
