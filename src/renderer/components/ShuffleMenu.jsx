@@ -125,11 +125,12 @@ class ShuffleMenu extends React.Component {
   }
 
   renderShuffleItem(id, showRemoveButton) {
-    return (<ShuffleItem
-      style={styles.cardStyle}
-      cardId={id}
-      showRemoveButton={showRemoveButton}
-      removeHandler={this.handleItemRemove.bind(this)} />
+    return (
+      <ShuffleItem
+        style={styles.cardStyle}
+        cardId={id}
+        showRemoveButton={showRemoveButton}
+        removeHandler={this.handleItemRemove.bind(this)} />
     );
   }
 

@@ -12,15 +12,12 @@ let styles = {
     display: 'flex',
     flexDirection: 'row',
   }
-}
+};
 
 export class Main extends React.Component {
-  state = {
-    message: 'Hello, Electron'
-  }
 
-  constructor () {
-    super();
+  constructor(props) {
+    super(props);
   }
 
   static childContextTypes = {
